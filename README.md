@@ -21,7 +21,6 @@ A simple URL shortener application built with Go (Gin framework) and SQLite. Thi
 ### Prerequisites
 
 - Go 1.23 or later installed on your machine.
-- SQLite installed (optional, as the application uses SQLite by default).
 
 ### Steps
 
