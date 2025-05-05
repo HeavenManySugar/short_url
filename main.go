@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -41,7 +42,9 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		hash := fmt.Sprintf("%x", md5.Sum([]byte(shortURL.Url)))[:8] // Generate an 8-character hash
+		// Generate a unique hash by appending a timestamp to the URL
+		hash := fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s-%d", shortURL.Url, time.Now().UnixNano()))))[:8]
+
 		db.Create(&ShortURL{
 			Url:  shortURL.Url,
 			Hash: hash,
@@ -57,6 +60,16 @@ func main() {
 			return
 		}
 		c.Redirect(http.StatusFound, "http://"+shortURL.Url)
+	})
+
+	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/", func(c *gin.Context) {
+		var shortURLs []ShortURL
+		db.Find(&shortURLs)
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"shortURLs": shortURLs,
+		})
 	})
 
 	r.Run(":3010") // listen and serve on :8080
