@@ -72,5 +72,9 @@ func main() {
 		})
 	})
 
+	r.GET("/shortener.js", func(c *gin.Context) {
+		c.File("templates/shortener.js")
+	})
+
 	r.Run(":3010") // listen and serve on :8080
 }
