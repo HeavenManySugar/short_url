@@ -42,8 +42,21 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		// Generate a unique hash by appending a timestamp to the URL
-		hash := fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s-%d", shortURL.Url, time.Now().UnixNano()))))[:8]
+		// Generate a unique hash
+		var hash string
+		var exists bool
+		for {
+			hash = fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s-%d", shortURL.Url, time.Now().UnixNano()))))[:8]
+
+			var count int64
+			db.Model(&ShortURL{}).Where("hash = ?", hash).Count(&count)
+			exists = count > 0
+
+			if !exists {
+				break
+			}
+			time.Sleep(1 * time.Millisecond)
+		}
 
 		db.Create(&ShortURL{
 			Url:  shortURL.Url,
