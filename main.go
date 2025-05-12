@@ -13,7 +13,7 @@ import (
 
 type ShortURL struct {
 	gorm.Model
-	Hash string `json:"hash"`
+	Hash string `json:"hash" gorm:"index;uniqueIndex"`
 	Url  string `json:"url"`
 }
 
